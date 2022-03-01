@@ -28,21 +28,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return user?.email ?? '';
   }
 
-  void _getMessages() async {
-    final messages = await _firestore.collection('messages').get();
-    for (var message in messages.docs) {
-      print(message.data());
-    }
-  }
-
-  // void _messagesStream() async {
-  //   await for (var snapshot in _firestore.collection('messages').snapshots()) {
-  //     for (var message in snapshot.docs) {
-  //       print(message.data());
-  //     }
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +41,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(context).pop();
               }),
         ],
-        title: Text('⚡️Chat'),
+        title: const Text('⚡️Chat'),
         backgroundColor: Colors.lightBlueAccent,
       ),
       body: SafeArea(
@@ -64,26 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            StreamBuilder<QuerySnapshot>(
-              stream: _messagesStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text('Something went wrong');
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Text('Loading');
-                }
-
-                return Column(
-                  children:
-                      snapshot.data!.docs.map((DocumentSnapshot document) {
-                    Map<String, dynamic> data =
-                        document.data()! as Map<String, dynamic>;
-                    return Text('${data['sender']} : ${data['text']}');
-                  }).toList(),
-                );
-              },
-            ),
+            MessagesStream(messagesStream: _messagesStream),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -101,7 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () {
                       _addMessage(_getCurrentUser(), _message);
                     },
-                    child: Text(
+                    child: const Text(
                       'Send',
                       style: kSendButtonTextStyle,
                     ),
@@ -111,6 +77,78 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MessagesStream extends StatelessWidget {
+  const MessagesStream({
+    Key? key,
+    required Stream<QuerySnapshot<Object?>> messagesStream,
+  })  : _messagesStream = messagesStream,
+        super(key: key);
+
+  final Stream<QuerySnapshot<Object?>> _messagesStream;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _messagesStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Something went wrong');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        return Expanded(
+          child: ListView(
+            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+              Map<String, dynamic> data =
+                  document.data()! as Map<String, dynamic>;
+              return ChatBubble(data: data);
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ChatBubble extends StatelessWidget {
+  const ChatBubble({
+    Key? key,
+    required this.data,
+  }) : super(key: key);
+
+  final Map<String, dynamic> data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text('${data['sender']}'),
+          Material(
+            borderRadius: BorderRadius.circular(30.0),
+            elevation: 5.0,
+            color: Theme.of(context).primaryColor,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+              child: Text(
+                '${data['text']}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
