@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "527071323454",
+    "project_id": "flashchat-ceab9",
+    "storage_bucket": "flashchat-ceab9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527071323454:android:c50f93030483a93afcb86f",
+        "android_client_info": {
+          "package_name": "com.example.flutter_flash_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "527071323454-0j5gvnhi7srvqqdrpgdq00gm0h6ilesv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYmX2IoGflxv-6qSdTzmLoFfZAryIkPwU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "527071323454-0j5gvnhi7srvqqdrpgdq00gm0h6ilesv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
