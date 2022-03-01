@@ -13,7 +13,6 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String _errorMsg = '';
-  bool _isSuccess = false;
   String _email = '';
   String _password = '';
 
@@ -21,7 +20,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
-      _isSuccess = true;
+      print('SignUp sucessfully');
+      Navigator.of(context).pushNamed(ChatScreen.routeName);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         _errorMsg = 'The password provided is too weak';
@@ -90,9 +90,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 child: MaterialButton(
                   onPressed: () {
                     _signUp(_email, _password);
-                    if (_isSuccess) {
-                      Navigator.of(context).pushNamed(ChatScreen.routeName);
-                    }
                   },
                   minWidth: 200.0,
                   height: 42.0,
