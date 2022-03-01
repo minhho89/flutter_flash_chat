@@ -22,7 +22,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
-      print('SignUp sucessfully');
+      print('SignUp successfully');
       setState(() {
         _isSpinning = false;
       });
