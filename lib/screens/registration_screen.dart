@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_flash_chat/constaint.dart';
+import 'package:flutter_flash_chat/screens/chat_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static String routeName = '/registration';
@@ -9,6 +11,31 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _errorMsg = '';
+  bool _isSuccess = false;
+  String _email = '';
+  String _password = '';
+
+  Future<void> _signUp(String email, String password) async {
+    try {
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      _isSuccess = true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        _errorMsg = 'The password provided is too weak';
+        print(_errorMsg);
+      } else if (e.code == 'email-already-in-use') {
+        _errorMsg = 'The account already exists for that email.';
+        print(_errorMsg);
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,18 +57,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               height: 48.0,
             ),
             TextField(
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.emailAddress,
               onChanged: (value) {
-                //Do something with the user input.
+                _email = value;
               },
-              decoration:
-                  kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
+              decoration: kTextFieldDecoration.copyWith(
+                hintText: 'Enter your email',
+              ),
             ),
             const SizedBox(
               height: 8.0,
             ),
             TextField(
+              textAlign: TextAlign.center,
+              obscureText: true,
               onChanged: (value) {
-                //Do something with the user input.
+                _password = value;
               },
               decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Enter your password'),
@@ -57,7 +89,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 elevation: 5.0,
                 child: MaterialButton(
                   onPressed: () {
-                    //Implement registration functionality.
+                    _signUp(_email, _password);
+                    if (_isSuccess) {
+                      Navigator.of(context).pushNamed(ChatScreen.routeName);
+                    }
                   },
                   minWidth: 200.0,
                   height: 42.0,
