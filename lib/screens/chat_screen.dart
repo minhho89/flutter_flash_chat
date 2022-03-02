@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../constaint.dart';
 
+User? currentUser = FirebaseAuth.instance.currentUser;
+
 class ChatScreen extends StatefulWidget {
   static String routeName = '/chat';
 
@@ -12,6 +14,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _messageTextController = TextEditingController();
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   final Stream<QuerySnapshot> _messagesStream =
@@ -57,6 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: _messageTextController,
                       onChanged: (value) {
                         _message = value;
                       },
@@ -65,6 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   FlatButton(
                     onPressed: () {
+                      _messageTextController.clear();
                       _addMessage(_getCurrentUser(), _message);
                     },
                     child: const Text(
@@ -110,7 +115,8 @@ class MessagesStream extends StatelessWidget {
             children: snapshot.data!.docs.map((DocumentSnapshot document) {
               Map<String, dynamic> data =
                   document.data()! as Map<String, dynamic>;
-              return ChatBubble(data: data);
+              return ChatBubble(
+                  data: data, isMe: data['sender'] == currentUser?.email);
             }).toList(),
           ),
         );
@@ -123,9 +129,11 @@ class ChatBubble extends StatelessWidget {
   const ChatBubble({
     Key? key,
     required this.data,
+    required this.isMe,
   }) : super(key: key);
 
   final Map<String, dynamic> data;
+  final bool isMe;
 
   @override
   Widget build(BuildContext context) {
